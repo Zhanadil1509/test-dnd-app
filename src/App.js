@@ -11,13 +11,17 @@ import DndInput from "./components/dndInput";
 
 const App = () => {
 
-  const [isValue, setIsValue] = useState('')
+  const [isValue, setIsValue] = useState({})
   const [droppedBoxNames, setDroppedBoxNames] = useState([])
   const [dustbins, setDustbins] = useState(data)
 
-  const handleChange = (e) => {
+  const handleChange = (e, question) => {
     const {name, value} = e.target
-    setIsValue(prevState => ({...prevState, [name]: value}))
+    setDustbins(update(dustbins,{ [name]: {
+        isValue: {
+          $set: value,
+        },
+      }}))
   }
 
   const handleDrop = useCallback((i, item) => {
@@ -35,14 +39,14 @@ const App = () => {
       }),
     )
   }, [droppedBoxNames, dustbins])
-  console.log(data)
 
   function isDropped(boxName) {
     return droppedBoxNames.indexOf(boxName) > -1
   }
 
+  const checkTrue = dustbins.every(v => v.isValue === v.answer)
+
   const threeBlocks = () => dustbins.map((v, i) => {
-    const checkTrue = Object.values(isValue).join() === v.answer
     return (
       <Row key={i}>
         <Col>
@@ -59,16 +63,17 @@ const App = () => {
               question={v.question}
               isValue={isValue}
               item={i}
+              answer={v.answer}
             />}
           </DndBlock>
           {v.lastDroppedItem === null &&
             <DndInput
               isDropped={isDropped(v.question)}
-              handleChange={handleChange}
+              handleChange={(e) => handleChange(e, v.question)}
               checkTrue={checkTrue}
               question={v.question}
               isValue={isValue}
-              item={i}
+              id={i}
             />
           }
         </Col>
